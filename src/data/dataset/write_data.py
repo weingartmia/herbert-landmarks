@@ -2,7 +2,7 @@ from pathlib import Path
 import csv
 
 def write(samples):
-    with open("labels.csv","w",newline="") as file:
+    with open("labels.csv","a",newline="") as file:
         writer = csv.writer(file)       
         writer.writerows(samples)
 

@@ -4,7 +4,7 @@ from torch import nn
 from models.base_model import herbert
 from data.load_data import test_loader,train_loader
 
-learning_rate= 0.01
+learning_rate= 0.0001
 batch_size=32
 
 def train_loop(dataloader, model, loss_fn, optimizer):
@@ -12,7 +12,8 @@ def train_loop(dataloader, model, loss_fn, optimizer):
 
     model.train()
     for batch, (X, y) in enumerate(dataloader):
-        pred = model(X)
+        print("started training")
+        pred = model(X).squeeze(1)
         loss = loss_fn(pred, y)
 
         # Backpropagation
@@ -35,17 +36,21 @@ def test_loop(dataloader, model, loss_fn):
     # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True
     with torch.no_grad():
         for X, y in dataloader:
-            pred = model(X)
+            pred = model(X).squeeze(1)
             test_loss += loss_fn(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+            mae = torch.abs(pred - y).mean()
+            print(f" Prediction cm: {pred}, Real values cm : {y}, difference {torch.abs(pred-y)} ")
+            
+            # correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
     test_loss /= num_batches
-    correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    # correct /= size
+    
+    print(f"Test Error: Avg loss: {test_loss:>8f}, Avg distance loss: {mae} cm \n")
 
 
 def train_model():
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(herbert.parameters(), lr=learning_rate)# learning rate is new w= old w -(lr * gradient) basically how much 
 
     epochs = 10
@@ -57,4 +62,4 @@ def train_model():
 
 if __name__=="__main__":
     train_model()
-    #torch.save(herbert.state_dict(), "results/herbert.pth")
+    torch.save(herbert.state_dict(), "results/herbert.pth")
