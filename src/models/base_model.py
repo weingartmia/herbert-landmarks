@@ -31,6 +31,12 @@ class NeuralNetwork(nn.Module):
             nn.ReLU(),
             nn.Linear(128, 1)
         )
+
+        self.shared = nn.Linear(64 * 56 * 56, 256)
+
+        # Output heads
+        self.distance = nn.Linear(256, 1)
+        self.rotation = nn.Linear(256, 8) 
         # self.flatten = nn.Flatten()
         # self.linear_relu_stack = nn.Sequential(
         #     nn.Linear(224*224, 512),#first param is number of input and second number of output

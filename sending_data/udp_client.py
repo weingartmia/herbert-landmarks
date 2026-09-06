@@ -16,6 +16,12 @@ def main():
         data, addr = sock.recvfrom(1024) 
         sock.sendto("RPi received OK",addr)
 
+def send(distance,rotation):
+    data, addr = sock.recvfrom(1024) 
+    sock.sendto((distance,rotation),addr)
+    
+
+
 def get_ip_address():
     ip_address = ''
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
