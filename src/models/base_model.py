@@ -25,18 +25,26 @@ class NeuralNetwork(nn.Module):
             nn.MaxPool2d(2),
         )
 
-        self.fc = nn.Sequential(
-            nn.Flatten(),
+        # self.fc = nn.Sequential(
+        #     nn.Flatten(),
+        #     nn.Linear(128 * 28 * 28, 128),
+        #     nn.ReLU(),
+        #     nn.Linear(128, 1)
+        # )
+        self.flatten = nn.Flatten()
+
+        self.shared = nn.Sequential(
             nn.Linear(128 * 28 * 28, 128),
-            nn.ReLU(),
-            nn.Linear(128, 1)
+            nn.ReLU()
         )
 
-        self.shared = nn.Linear(64 * 56 * 56, 256)
 
-        # Output heads
-        self.distance = nn.Linear(256, 1)
-        self.rotation = nn.Linear(256, 8) 
+        # Two output heads
+        self.distance_head = nn.Linear(128, 1)     # regression
+        self.rotation_head = nn.Linear(128, 8)     # 8 rotation classes
+
+
+
         # self.flatten = nn.Flatten()
         # self.linear_relu_stack = nn.Sequential(
         #     nn.Linear(224*224, 512),#first param is number of input and second number of output
@@ -48,9 +56,13 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x):
         x = self.conv(x)
-        x= self.fc(x)
+        x= self.flatten(x)
+        x= self.shared(x)
+
+        distance = self.distance_head(x)
+        rotation = self.rotation_head(x)
         
-        return x
+        return distance,rotation
 
 herbert = NeuralNetwork().to(device)
 print(herbert)

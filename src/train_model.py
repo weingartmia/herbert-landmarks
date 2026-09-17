@@ -14,8 +14,8 @@ def train_loop(dataloader, model, loss_fn, optimizer, isDis):
     for batch, (X, y) in enumerate(dataloader):
         print("started training")
 
-        if isDis: pred = model(X).squeeze(1)
-        else: pred= model(X)
+        if isDis: pred,_ = model(X).squeeze(1)
+        else: _,pred= model(X)
 
         loss = loss_fn(pred, y)
 
@@ -40,8 +40,8 @@ def test_loop(dataloader, model, loss_fn, isDis):
     with torch.no_grad():
         for X, y in dataloader:
             
-            if isDis:pred = model(X).squeeze(1)
-            else: pred= model(X)
+            if isDis:pred,_ = model(X).squeeze(1)
+            else: _,pred= model(X)
             
             test_loss += loss_fn(pred, y).item()
             mae = torch.abs(pred - y).mean()

@@ -59,7 +59,7 @@ full_dataset= DistanceDataset(
 
 )
 
-rotation_dataset= DistanceDataset(
+rotation_dataset= RotationDataset(
     annotations_file="data/dataset/labels/rotations.csv",
     img_dir="data/dataset/images",
     transform=transform_rotation
@@ -74,7 +74,7 @@ rot_test_size= int(0.3 * len(rotation_dataset))
 
 training_dataset,test_dataset=random_split(full_dataset,[train_size,test_size])
 
-rot_training_dataset, rot_test_dataset= random_split(full_dataset,[rot_train_size,rot_test_size])
+rot_training_dataset, rot_test_dataset= random_split(rotation_dataset,[rot_train_size,rot_test_size])
 
 print(f"training datasets: {training_dataset.indices}")
 print(f"test_dataset: {test_dataset.indices}")
