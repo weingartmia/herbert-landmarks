@@ -41,7 +41,7 @@ class NeuralNetwork(nn.Module):
 
         # Two output heads
         self.distance_head = nn.Linear(128, 1)     # regression
-        self.rotation_head = nn.Linear(128, 8)     # 8 rotation classes
+        self.rotation_head = nn.Linear(128, 5)     # 8 rotation classes
 
 
 

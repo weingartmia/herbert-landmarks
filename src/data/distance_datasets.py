@@ -33,6 +33,15 @@ class DistanceDataset(Dataset):
 
 class RotationDataset(Dataset):
 
+    rotation_map={
+        "-30deg":0,
+        "-15deg":1,
+        "0deg":2,
+        "15deg":3,
+        "30deg":4
+
+    }
+
     def __init__(self, annotations_file, img_dir, transform=None):
         self.img_labels = pd.read_csv(annotations_file)
         self.img_dir = img_dir
@@ -46,11 +55,14 @@ class RotationDataset(Dataset):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = decode_image(img_path)
         label = self.img_labels.iloc[idx, 1]
+
+        rotation= self.rotation_map[label]
+        rotation= torch.tensor(rotation, dtype=torch.long)
        
         if self.transform:
             image = self.transform(image)
  
-        return image, label
+        return image, rotation
 
 full_dataset= DistanceDataset(
     annotations_file='data/dataset/labels/distance.csv',
@@ -67,10 +79,10 @@ rotation_dataset= RotationDataset(
 )
 
 train_size = int(0.7 * len(full_dataset)) # 70% of all datasets are for training
-test_size = int(0.3 * len(full_dataset)) # 15% for 
+test_size = len(full_dataset)- train_size# 15% for 
 
 rot_train_size=int(0.7* len(rotation_dataset))
-rot_test_size= int(0.3 * len(rotation_dataset))
+rot_test_size=  len(rotation_dataset) - rot_train_size
 
 training_dataset,test_dataset=random_split(full_dataset,[train_size,test_size])
 
