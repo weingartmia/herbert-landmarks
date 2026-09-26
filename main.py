@@ -4,9 +4,10 @@ from src.load_model import evaluate
 
 
 def main():
-    frame= cam.get_frame()
-    dis=evaluate(frame)
-    udp_client.send()
+    while True:
+        frame= cam.get_frame()
+        dis=evaluate(frame)
+        udp_client.send()
     
 
 

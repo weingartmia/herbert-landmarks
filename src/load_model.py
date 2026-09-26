@@ -1,4 +1,4 @@
-from models.base_model import NeuralNetwork
+from models.base_model import Herbert,Norbert
 import transforms.transforms as t
 
 import torch
@@ -6,14 +6,32 @@ from torch import nn
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 
-herbert = NeuralNetwork().to(device)
+herbert = Herbert.to(device)
+norbert =Norbert.to(device)
 herbert.load_state_dict(torch.load("results/herbert.pth", weights_only=True))
 
 
 def evaluate(frame):
-    herbert.eval()
+
+    out = norbert.eval()
     frame= t.transform_distance(frame)
-    x=frame.unsqueese(0)
+    x=frame.unsqueeze(0)
+
+    with torch.no_grad():
+        x= x.to(device)
+        pred= herbert(x)
+        print(pred.item())
+        return pred.item()
+    
+    print(out.item())
+
+    if out.item()==1:
+        return true
+    return False
+
+    
+def get_landmarks(frame):
+    x=frame
     with torch.no_grad():
         x= x.to(device)
         pred= herbert(x).squeese(1)

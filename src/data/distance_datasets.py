@@ -6,8 +6,19 @@ from torch.utils.data import Dataset
 from torch.utils.data import random_split
 from torchvision.io import decode_image
 
+import ast
+
 sys.path.append("..")
-from transforms.transforms import transform_distance,transform_rotation
+from transforms.transforms import transform_landmarks
+
+distance_map={
+        "0.0":0,
+        "0.5":1,
+        "1.0":2,
+        "8.0":3,
+        "None":4
+
+        }
 
 class DistanceDataset(Dataset):
 
@@ -21,15 +32,18 @@ class DistanceDataset(Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
+
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = decode_image(img_path)
         label = self.img_labels.iloc[idx, 1]
-        distance = torch.tensor(label, dtype=torch.float32)
+        data = ast.literal_eval(label)
+        
+        coordinates = torch.tensor(data, dtype=torch.float32)
 
         if self.transform:
             image = self.transform(image)
  
-        return image, distance
+        return image, coordinates
 
 class RotationDataset(Dataset):
 
@@ -67,26 +81,27 @@ class RotationDataset(Dataset):
 full_dataset= DistanceDataset(
     annotations_file='data/dataset/labels/distance.csv',
     img_dir="data/dataset/images",
-    transform= transform_distance
+    transform= transform_landmarks
 
 )
 
-rotation_dataset= RotationDataset(
-    annotations_file="data/dataset/labels/rotations.csv",
-    img_dir="data/dataset/images",
-    transform=transform_rotation
+# rotation_dataset= RotationDataset(
+#     annotations_file="data/dataset/labels/rotations.csv",
+#     img_dir="data/dataset/images",
+#     transform=transform_rotation
 
-)
+# )
 
 train_size = int(0.7 * len(full_dataset)) # 70% of all datasets are for training
 test_size = len(full_dataset)- train_size# 15% for 
 
-rot_train_size=int(0.7* len(rotation_dataset))
-rot_test_size=  len(rotation_dataset) - rot_train_size
+# rot_train_size=int(0.7* len(rotation_dataset))
+# rot_test_size=  len(rotation_dataset) - rot_train_size
+
 
 training_dataset,test_dataset=random_split(full_dataset,[train_size,test_size])
-
-rot_training_dataset, rot_test_dataset= random_split(rotation_dataset,[rot_train_size,rot_test_size])
+subset = torch.utils.data.Subset(training_dataset,range(32))
+# rot_training_dataset, rot_test_dataset= random_split(rotation_dataset,[rot_train_size,rot_test_size])
 
 print(f"training datasets: {training_dataset.indices}")
 print(f"test_dataset: {test_dataset.indices}")

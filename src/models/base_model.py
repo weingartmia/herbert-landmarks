@@ -7,23 +7,60 @@ from torch.utils.data import DataLoader
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 print(f"Using {device} device")
 
-class NeuralNetwork(nn.Module):
+class Herbert(nn.Module):
 
     def __init__(self):
         super().__init__()
+
         self.conv = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.Conv2d(3, 16, 3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
 
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.Conv2d(16, 32, 3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
 
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.Conv2d(32, 64, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(64, 128, 3, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(2),
         )
+
+        self.regressor = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(128 * 14 * 14, 128),
+            nn.ReLU(),
+            nn.Linear(128, 8)
+        )
+
+        # self.conv = nn.Sequential(
+        #     nn.Conv2d(1, 32, kernel_size=3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2),
+
+        #     nn.Conv2d(32, 64, kernel_size=3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2),
+
+        #     nn.Conv2d(64, 128, kernel_size=3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2),
+
+        #     nn.Conv2d(128, 256, kernel_size=3, padding=1),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2),
+        # )
+
+        # self.regressor = nn.Sequential(
+        #     nn.Flatten(),
+        #     nn.Linear(256 * 14 * 14, 256),
+        #     nn.ReLU(),
+        #     nn.Linear(256, 6)
+        # )
 
         # self.fc = nn.Sequential(
         #     nn.Flatten(),
@@ -31,19 +68,6 @@ class NeuralNetwork(nn.Module):
         #     nn.ReLU(),
         #     nn.Linear(128, 1)
         # )
-        self.flatten = nn.Flatten()
-
-        self.shared = nn.Sequential(
-            nn.Linear(128 * 28 * 28, 128),
-            nn.ReLU()
-        )
-
-
-        # Two output heads
-        self.distance_head = nn.Linear(128, 1)     # regression
-        self.rotation_head = nn.Linear(128, 5)     # 8 rotation classes
-
-
 
         # self.flatten = nn.Flatten()
         # self.linear_relu_stack = nn.Sequential(
@@ -56,13 +80,61 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x):
         x = self.conv(x)
-        x= self.flatten(x)
-        x= self.shared(x)
+        x= self.regressor(x)
 
-        distance = self.distance_head(x)
-        rotation = self.rotation_head(x)
+        # rotation = self.rotation_head(x)
         
-        return distance,rotation
+        return x.view(-1,4,2)
 
-herbert = NeuralNetwork().to(device)
+class Norbert(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+        self.conv = nn.Sequential(
+            nn.Conv2d(3, 16, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(16, 32, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(32, 64, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(64, 128, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+
+
+        self.regressor = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(128 * 14 * 14, 128),
+            nn.ReLU(),
+            nn.Linear(128, 8)
+        )
+
+
+
+
+    def forward(self, x):
+        x = self.conv(x)
+        x= self.regressor(x)
+   
+        return x.view(-1,4,2)
+
+
+
+
+# class Albert(nn.Module):
+
+
+
+herbert = Herbert().to(device)
+
 print(herbert)
+
+norbert =Norbert().to(device)
