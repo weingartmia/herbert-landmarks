@@ -11,8 +11,8 @@ test_loader  = DataLoader(distance_datasets.test_dataset, batch_size=32, shuffle
 
 subset = DataLoader(distance_datasets.subset,batch_size=32,shuffle=True)
 
-# rot_train_loader = DataLoader(distance_datasets.rot_training_dataset,batch_size=32, shuffle=True)
-# rot_test_loader= DataLoader(distance_datasets.rot_test_dataset,batch_size=32,shuffle=False)
+bin_train_loader = DataLoader(distance_datasets.bin_training_dataset,batch_size=32, shuffle=True)
+bin_test_loader= DataLoader(distance_datasets.bin_test_dataset,batch_size=32,shuffle=False)
 
-
+subset_bin = DataLoader(distance_datasets.subset_bin,batch_size=32,shuffle=True)
 # show_index(train_loader,0)

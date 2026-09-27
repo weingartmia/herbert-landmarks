@@ -114,7 +114,7 @@ class Norbert(nn.Module):
             nn.Flatten(),
             nn.Linear(128 * 14 * 14, 128),
             nn.ReLU(),
-            nn.Linear(128, 8)
+            nn.Linear(128, 1)
         )
 
 
@@ -124,7 +124,7 @@ class Norbert(nn.Module):
         x = self.conv(x)
         x= self.regressor(x)
    
-        return x.view(-1,4,2)
+        return x
 
 
 
@@ -138,3 +138,5 @@ herbert = Herbert().to(device)
 print(herbert)
 
 norbert =Norbert().to(device)
+
+print(norbert)

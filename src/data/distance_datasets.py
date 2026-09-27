@@ -11,14 +11,6 @@ import ast
 sys.path.append("..")
 from transforms.transforms import transform_landmarks
 
-distance_map={
-        "0.0":0,
-        "0.5":1,
-        "1.0":2,
-        "8.0":3,
-        "None":4
-
-        }
 
 class DistanceDataset(Dataset):
 
@@ -45,16 +37,7 @@ class DistanceDataset(Dataset):
  
         return image, coordinates
 
-class RotationDataset(Dataset):
-
-    rotation_map={
-        "-30deg":0,
-        "-15deg":1,
-        "0deg":2,
-        "15deg":3,
-        "30deg":4
-
-    }
+class BinaryDataset(Dataset):
 
     def __init__(self, annotations_file, img_dir, transform=None):
         self.img_labels = pd.read_csv(annotations_file)
@@ -70,13 +53,13 @@ class RotationDataset(Dataset):
         image = decode_image(img_path)
         label = self.img_labels.iloc[idx, 1]
 
-        rotation= self.rotation_map[label]
-        rotation= torch.tensor(rotation, dtype=torch.long)
+      
+        label= torch.tensor(label, dtype=torch.float32)
        
         if self.transform:
             image = self.transform(image)
  
-        return image, rotation
+        return image, label
 
 full_dataset= DistanceDataset(
     annotations_file='data/dataset/labels/distance.csv',
@@ -85,23 +68,25 @@ full_dataset= DistanceDataset(
 
 )
 
-# rotation_dataset= RotationDataset(
-#     annotations_file="data/dataset/labels/rotations.csv",
-#     img_dir="data/dataset/images",
-#     transform=transform_rotation
+binary_dataset= BinaryDataset(
+    annotations_file="data/dataset/labels/hand.csv",
+    img_dir="data/dataset/images",
+    transform=transform_landmarks
 
-# )
+)
 
 train_size = int(0.7 * len(full_dataset)) # 70% of all datasets are for training
-test_size = len(full_dataset)- train_size# 15% for 
+test_size = len(full_dataset)- train_size# 15% for testing
 
-# rot_train_size=int(0.7* len(rotation_dataset))
-# rot_test_size=  len(rotation_dataset) - rot_train_size
+bin_train_size=int(0.7* len(binary_dataset)) # 70%
+bin_test_size=  len(binary_dataset) - bin_train_size # 15 %
 
 
-training_dataset,test_dataset=random_split(full_dataset,[train_size,test_size])
-subset = torch.utils.data.Subset(training_dataset,range(32))
-# rot_training_dataset, rot_test_dataset= random_split(rotation_dataset,[rot_train_size,rot_test_size])
+training_dataset,test_dataset=random_split(full_dataset,[train_size,test_size]) # getting actual datasets from sizes
+subset = torch.utils.data.Subset(training_dataset,range(32)) # subset for testing
+
+bin_training_dataset, bin_test_dataset= random_split(binary_dataset,[bin_train_size,bin_test_size])
+subset_bin = torch.utils.data.Subset(binary_dataset,range(32))
 
 print(f"training datasets: {training_dataset.indices}")
 print(f"test_dataset: {test_dataset.indices}")
