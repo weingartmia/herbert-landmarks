@@ -1,5 +1,9 @@
 import torch
 
+import transforms.transforms as t
+
+from data.load_data import bin_test_loader,bin_train_loader,  subset_bin
+
 
 def sanity_check(optimizer,model,criterion, loader):
     images, labels = next(iter(loader))
@@ -102,6 +106,17 @@ def replace_test_landmarks(model,images):
         print(b)
 
 
+
+def test_model_eval(model,dataset):
+
+    X,y = dataset[3]
+    model.eval()
+
+    with torch.no_grad():
+        # X = X.to(device)
+        pred = model(X)
+        predicted, actual =[torch.sigmoid(pred), y]
+        print(f'Predicted raw : "{predicted}", Predictes: {predicted.round()} Actual: "{actual}"')
 
 
 # def load_model(model):
