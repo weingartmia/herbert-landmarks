@@ -2,7 +2,6 @@ import torch
 
 import transforms.transforms as t
 
-from data.load_data import bin_test_loader,bin_train_loader,  subset_bin
 
 
 def sanity_check(optimizer,model,criterion, loader):
@@ -109,7 +108,9 @@ def replace_test_landmarks(model,images):
 
 def test_model_eval(model,dataset):
 
-    X,y = dataset[3]
+    X,y = dataset[3][0], dataset[3][1]
+    X=t.transform_landmarks(X)
+    X =X.unsqueeze(0)
     model.eval()
 
     with torch.no_grad():
