@@ -95,7 +95,7 @@ def train_model():
         print(f"Epoch {t+1}\n-------------------------------")
 
         train_loop_distance(train_loader, herbert,loss_smooth, optimizer)
-        test_loop_distance(train_loader, herbert, loss_smooth)
+        test_loop_distance(test_loader, herbert, loss_smooth)
 
 
     print("Done!")

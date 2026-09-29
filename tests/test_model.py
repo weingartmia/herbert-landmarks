@@ -2,6 +2,8 @@ import torch
 
 import transforms.transforms as t
 
+import cv2
+
 
 
 def sanity_check(optimizer,model,criterion, loader):
@@ -120,4 +122,25 @@ def test_model_eval(model,dataset):
         print(f'Predicted raw : "{predicted}", Predictes: {predicted.round()} Actual: "{actual}"')
 
 
-# def load_model(model):
+
+
+def test_models_workflow(path,evaluate):
+
+    video = cv2.VideoCapture(path)
+
+    while True:
+        ret, frame= video.read()
+        # frame = cv2.flip(frame, 1)
+
+        if not ret:
+            break
+
+        evaluate(frame)
+
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
+
+    video.release()
+    cv2.destroyAllWindows()       
+
+
