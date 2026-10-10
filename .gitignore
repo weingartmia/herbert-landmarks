@@ -10,3 +10,6 @@ wheels/
 .venv
 # data
 images/
+
+# csv files
+*.csv

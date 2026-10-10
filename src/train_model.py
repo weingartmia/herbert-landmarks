@@ -9,6 +9,8 @@ import sys
 sys.path.append("..")
 
 import tests.test_model as test_model
+import utils.write_csv as write
+import utils.loop_dataloader as loop
 
 learning_rate= 1e-4
 batch_size=32
@@ -32,7 +34,7 @@ def train_loop_distance(dataloader, model,loss_fn, optimizer):
         loss = loss_fn(pred, y)
         # Backpropagation
         loss.backward() # compute the negative gradient
-        print(model.conv[0].weight.grad.abs().mean())
+      
         optimizer.step()# increase/decrease weight
         optimizer.zero_grad()
 
@@ -54,7 +56,7 @@ def test_loop_distance(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
-    test_loss, correct = 0, 0
+    n_total, correct_total,test_loss = 0, 0,0
     with torch.no_grad():
         for X, y in dataloader:
             X, y = X.to(device), y.to(device)
@@ -68,6 +70,15 @@ def test_loop_distance(dataloader, model, loss_fn):
             difference= torch.linalg.norm(pred-y, dim=2)
 
             correct = (difference< threshold).type(torch.float).float().mean()
+            correct_total +=correct.sum().item()
+            n_total += correct.numel()
+
+            
+
+            for i in range(4):
+                acc = (difference[:, i] < threshold).float().mean()
+                if (acc.item() < 0.7): write.write_values(f"landmark {i}: {acc.item()*100:.1f}%")
+                print(f"landmark {i}: {acc.item()*100:.1f}%")
 
             print(f" predicted: {pred}")
             print(f" real: {y}")
@@ -78,14 +89,14 @@ def test_loop_distance(dataloader, model, loss_fn):
           
     test_loss /= num_batches
    
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"Test Error: \n Accuracy: {(100*correct_total/n_total):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
             
 
 
 def train_model():
 
-    loss_smooth = nn.SmoothL1Loss()
+    loss_smooth = nn.SmoothL1Loss(beta=0.02)
 
    
     optimizer= torch.optim.Adam(herbert.parameters(), lr=learning_rate)
@@ -95,7 +106,7 @@ def train_model():
         print(f"Epoch {t+1}\n-------------------------------")
 
         train_loop_distance(train_loader, herbert,loss_smooth, optimizer)
-        test_loop_distance(test_loader, herbert, loss_smooth)
+        test_loop_distance(train_loader, herbert, loss_smooth)
 
 
     print("Done!")
@@ -103,5 +114,6 @@ def train_model():
 
 
 if __name__=="__main__":
-    train_model()
-    torch.save(herbert.state_dict(), "results/herbert.pth")
+    loop.test_labels(train_loader)
+    # train_model()
+    # torch.save(herbert.state_dict(), "results/herbert.pth")

@@ -1,6 +1,6 @@
 from pathlib import Path
 import csv
-from get_coordinates import get_coordinates,show_failed_landmarks
+from get_coordinates import get_coordinates,show_failed_landmarks, show_wrong_landmarks
 
 import random as r
 
@@ -35,7 +35,7 @@ def write_distances():
         labels.append([distance_dir.name+"/"+file.name,distance_dir.name])
         
         write("../labels/distance.csv",cordinates,distance_dir.name+"/"+file.name )
-    show_failed_landmarks()
+    show_wrong_landmarks()
 
 
 def write_binary_data():
@@ -55,4 +55,4 @@ def write_binary_data():
 
 if __name__ == "__main__":
 
-    write_binary_data()
+   write_distances()
