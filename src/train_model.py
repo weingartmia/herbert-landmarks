@@ -114,6 +114,7 @@ def train_model():
 
 
 if __name__=="__main__":
+    print(train_loader)
     loop.test_labels(train_loader)
     # train_model()
     # torch.save(herbert.state_dict(), "results/herbert.pth")

@@ -141,6 +141,6 @@ def test_models_workflow(path,evaluate):
                 break
 
     video.release()
-    cv2.destroyAllWindows()       
+    cv2.destroyAllWindows()   
 
 

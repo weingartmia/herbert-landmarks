@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import random_split
 from torchvision.io import decode_image
 
-import ast
+import ast,re
 
 sys.path.append("..")
 from transforms.transforms import transform_landmarks
@@ -24,13 +24,17 @@ class DistanceDataset(Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
-
+       
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = decode_image(img_path)
         label = self.img_labels.iloc[idx, 1]
-        data = ast.literal_eval(label)
+        cleaned = re.sub(r"np\.\w+\(([^()]*)\)", r"\1", label)
+        vals = [float(v) for v in cleaned.replace("(", "").replace(")", "").split(",")]
+        assert len(vals) == 7
+    
         
-        coordinates = torch.tensor(data, dtype=torch.float32)
+        coordinates = torch.tensor(vals, dtype=torch.float32)
+       
 
         if self.transform:
             image = self.transform(image)

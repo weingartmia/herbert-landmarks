@@ -96,9 +96,10 @@ def return_best_coordinates(padded,path, H, W, p, rotations=(0, 1, 2, 3)):
             lm = np.stack([1 - lm[:, 1], lm[:, 0]], 1)
         pts = np.stack([(lm[:, 0] * Wp - p) / W, (lm[:, 1] * Hp - p) / H], 1,dtype=np.float32)
       
-        print(f"pts: {pts}")
+       
 
-        if auto_valid(pts):                             
+        if auto_valid(pts):          
+            print("/////////////////////////Good landmark ///////////////////////")                   
             score = res.handedness[0][0].score
             if best is None or score > best[0]:
                 best = (score, pts)
@@ -134,9 +135,9 @@ def get_angle(landmarks):
     diff= finger_tip_center -palm_center
     
 
-    angle= np.degrees(np.arctan2(diff[0],diff[1]))
+    # angle= np.degrees(np.arctan2(diff[0],diff[1]))
 
-    return angle
+    return diff
 
 
 
@@ -158,19 +159,24 @@ def get_coordinates(path):
     else: return 0
 
 
-def auto_valid(pts21):                    
-    
-    tips = np.array([pts21[4], pts21[8],pts21[12]],dtype=np.float32).reshape(-1)
-    if np.any(tips < 0.0) or np.any(tips > 1.0): 
+def auto_valid(pts21,min_hand_size=0.08):                    
+    tips = np.asarray(pts21[[4, 8, 12]], dtype=np.float32)          # [3, 2]
+    knuckles = np.asarray(pts21[[5, 9, 13, 17]], dtype=np.float32)  # [4, 2]
+
+    if np.any(tips < 0.0) or np.any(tips > 1.0):
         return False
-  
-    knuckles = np.array([pts21[5],pts21[9],pts21[13],pts21[17]],dtype=np.float32).reshape(-1)
+
     if np.any(knuckles < -0.05) or np.any(knuckles > 1.05):
-        print(f"knucles: {knuckles}")
+        print(f"knuckles out of frame: {knuckles.ravel()}")
         return False
-    hand_size = np.linalg.norm(np.mean(tips) - np.mean(knuckles))
-    if hand_size < 0.05:     
-        print(f"hand size: {hand_size}")                     
+
+    hand_size = np.linalg.norm(tips.mean(axis=0) - knuckles.mean(axis=0))
+    if hand_size < min_hand_size:
+        print(f"hand too small / bunched: {hand_size:.3f}")
+        return False
+
+    if np.any(tips[:,1]) < tips[0][1]:
+        print(f" thumb is higher than tips {tips[1,:][1]} {tips[0][1]}")
         return False
     return True
 
