@@ -132,10 +132,13 @@ def get_angle(landmarks):
     finger_tip_center=  np.mean([[landmarks[4][0], landmarks[4][1]],[landmarks[8][0], landmarks[8][1]]],axis=0)
    
 
-    diff= finger_tip_center -palm_center
+    diff= np.mean([finger_tip_center,palm_center], axis=0)
+    # diff = finger_tip_center -palm_center
+
     
 
     # angle= np.degrees(np.arctan2(diff[0],diff[1]))
+    # print(f"**************************{angle}")
 
     return diff
 
@@ -153,8 +156,9 @@ def get_coordinates(path):
         palm = get_angle(result)
         middle= result[12][0], result[12][1]
    
-
+  
         return  thumb, index,palm,middle
+ 
 
     else: return 0
 

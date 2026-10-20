@@ -11,7 +11,7 @@ import sys
 sys.path.append("..")
 import tests.test_model as test_model
 from data.distance_datasets import bin_test_dataset
-from utils.target_coordinates import show_absolute_coordinates
+import utils.target_coordinates as coor
 
 
 
@@ -69,7 +69,12 @@ def evaluate(frame):
         print("hand detected")
         cor =get_landmarks(x)
 
-        show_absolute_coordinates(cor.squeeze().tolist(),img)
+        (dis,th,rin)=coor.get_absolute_distance(cor.squeeze().numpy())
+        (rot,center)  = coor.get_rotation(cor.squeeze().numpy())
+
+        coor.show_absolute_coordinates(cor.squeeze().tolist(),center,th,rin,img)
+        
+
         cv2.imshow("img",img)
 
 
@@ -77,7 +82,7 @@ if __name__ =="__main__":
 
     # img = cv2.imread("../tests/test_assets/hand.jpg")
     # evaluate(img)
-    path = Path("../tests/test_assets/hand2.mp4")
+    path = Path("../tests/test_assets/absolute.mp4")
     print(path.exists())
     test_model.test_models_workflow(path, evaluate)
 

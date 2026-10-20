@@ -62,18 +62,14 @@ def test_loop_distance(dataloader, model, loss_fn):
             X, y = X.to(device), y.to(device)
       
             pred = model(X)
-
             test_loss += loss_fn(pred, y)
-
             threshold=0.1
 
             difference= torch.linalg.norm(pred-y, dim=2)
-
             correct = (difference< threshold).type(torch.float).float().mean()
             correct_total +=correct.sum().item()
             n_total += correct.numel()
 
-            
 
             for i in range(4):
                 acc = (difference[:, i] < threshold).float().mean()
@@ -84,8 +80,6 @@ def test_loop_distance(dataloader, model, loss_fn):
             print(f" real: {y}")
             print(f"difference mean: {difference.mean().item()}")
             print(f"difference in pixels  {(difference.mean() * 224).item()}")
-
-
           
     test_loss /= num_batches
    
@@ -115,6 +109,8 @@ def train_model():
 
 if __name__=="__main__":
     print(train_loader)
-    loop.test_labels(train_loader)
-    # train_model()
-    # torch.save(herbert.state_dict(), "results/herbert.pth")
+
+ 
+  
+    train_model()
+    torch.save(herbert.state_dict(), "results/herbert.pth")

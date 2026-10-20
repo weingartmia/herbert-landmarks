@@ -28,12 +28,15 @@ class DistanceDataset(Dataset):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = decode_image(img_path)
         label = self.img_labels.iloc[idx, 1]
-        cleaned = re.sub(r"np\.\w+\(([^()]*)\)", r"\1", label)
-        vals = [float(v) for v in cleaned.replace("(", "").replace(")", "").split(",")]
-        assert len(vals) == 7
+        s = re.sub(r"np\.\w+\(([^()]*)\)", r"\1", label)                    # np.float32(0.04) -> 0.04
+        s = re.sub(r"array\((\[[^\]]*\]),\s*dtype=\w+\)", r"\1", s)     # array([a, b], dtype=float32) -> [a, b]
+        arr =ast.literal_eval(s)
+       
     
         
-        coordinates = torch.tensor(vals, dtype=torch.float32)
+        coordinates = torch.tensor(arr, dtype=torch.float32)
+
+        assert coordinates.shape == (4, 2), coordinates.shape
        
 
         if self.transform:
