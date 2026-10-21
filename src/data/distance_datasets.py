@@ -9,7 +9,7 @@ from torchvision.io import decode_image
 import ast,re
 
 sys.path.append("..")
-from transforms.transforms import transform_landmarks
+from src.transforms.transforms import transform_landmarks
 
 
 class DistanceDataset(Dataset):
@@ -69,15 +69,15 @@ class BinaryDataset(Dataset):
         return image, label
 
 full_dataset= DistanceDataset(
-    annotations_file='data/dataset/labels/distance.csv',
-    img_dir="data/dataset/images",
+    annotations_file='src/data/dataset/labels/distance.csv',
+    img_dir="src/data/dataset/images",
     transform= transform_landmarks
 
 )
 
 binary_dataset= BinaryDataset(
-    annotations_file="data/dataset/labels/hand.csv",
-    img_dir="data/dataset/images",
+    annotations_file="src/data/dataset/labels/hand.csv",
+    img_dir="src/data/dataset/images",
     transform=transform_landmarks
 
 )

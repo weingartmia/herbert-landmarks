@@ -10,6 +10,8 @@ wheels/
 .venv
 # data
 images/
-
+labels/
 # csv files
 *.csv
+# testing data
+test_assets/
